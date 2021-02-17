@@ -10,12 +10,15 @@ Examples
 >>> ds
 ...
 """
+__version__ = "1.0.0"
+
 from typing import List, Optional, Tuple
 
 import affine
 import pyproj
 import pystac
 import rasterio
+import rasterio.warp
 import numpy as np
 
 # TODO: change to types to a Protocol
@@ -34,12 +37,7 @@ def build_bbox(stac_items: List[pystac.Item], crs=None) -> rasterio.coords.Bound
     return _build_bbox(bboxes)
 
 
-def _build_bboxes(stac_items: List[pystac.Item], crs=None) -> List[rasterio.coords.BoundingBox]:
-    if not stac_items:
-        raise ValueError("Must provide at least one item")
-    if crs is None:
-        crs = stac_items[0]["properties"]["proj:epsg"]  # TODO: handle missing proj
-
+def _build_bboxes(stac_items: List[pystac.Item], crs) -> List[rasterio.coords.BoundingBox]:
     has_proj_bbox = "proj:bbox" in stac_items[0]["properties"]
     crs = pyproj.crs.CRS(crs)
     if has_proj_bbox:
@@ -129,13 +127,27 @@ def build_vrt(
     block_height=None,
     add_prefix=True,
 ):
-    if res_x is None:
-        res_x = stac_items[0].res[0]
-    if res_y is None:
-        res_y = stac_items[0].res[1]
+    if not stac_items:
+        raise ValueError("must provide at least one STAC item")
+
+    if crs is None:
+        crs = pyproj.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
+
+    if res_x is None or res_y is None:
+        # TODO: proj:transform might not exist.
+        trn = stac_items[0]["properties"]["proj:transform"]
+        trn = affine.Affine(*trn[:6])  # may be 6 or 9 elements.
+        res_x = res_x or trn[0]
+        res_y = res_y or abs(trn[4])
 
     if bboxes is None:
         bboxes = _build_bboxes(stac_items, crs)
+    else:
+        # TODO: validate length
+        pass
+    
+    if shapes is None:
+        shapes = [stac_item["properties"]["proj:shape"] for stac_item in stac_items]
     else:
         # TODO: validate length
         pass
@@ -164,7 +176,6 @@ def build_vrt(
             if add_prefix and url.startswith("http"):
                 url = "/vsicurl/" + url
 
-            print(j)
             simple_sources[j - 1].append(
                 _simple_source_template.format(
                     url=url,
