@@ -16,7 +16,6 @@ from typing import List, Optional, Tuple
 
 import affine
 import pyproj
-import pystac
 import rasterio
 import rasterio.warp
 import numpy as np
@@ -24,7 +23,7 @@ import numpy as np
 # TODO: change to types to a Protocol
 
 
-def build_bbox(stac_items: List[pystac.Item], crs=None) -> rasterio.coords.BoundingBox:
+def build_bbox(stac_items, crs=None) -> rasterio.coords.BoundingBox:
     """
     Get the bounding box for a list of STAC Items.
 
@@ -37,16 +36,23 @@ def build_bbox(stac_items: List[pystac.Item], crs=None) -> rasterio.coords.Bound
     return _build_bbox(bboxes)
 
 
-def _build_bboxes(stac_items: List[pystac.Item], crs) -> List[rasterio.coords.BoundingBox]:
+def _build_bboxes(stac_items, crs) -> List[rasterio.coords.BoundingBox]:
     has_proj_bbox = "proj:bbox" in stac_items[0]["properties"]
     crs = pyproj.crs.CRS(crs)
     if has_proj_bbox:
-        bboxes = [rasterio.coords.BoundBox(*item["properties"]["proj:bbox"]) for item in stac_items]
+        bboxes = [
+            rasterio.coords.BoundingBox(*item["properties"]["proj:bbox"])
+            for item in stac_items
+        ]
     else:
         bboxes = []
         for stac_item in stac_items:
             bboxes.append(
-                rasterio.coords.BoundingBox(*rasterio.warp.transform_bounds("epsg:4326", crs, *stac_item["bbox"]))
+                rasterio.coords.BoundingBox(
+                    *rasterio.warp.transform_bounds(
+                        "epsg:4326", crs, *stac_item["bbox"]
+                    )
+                )
             )
     return bboxes
 
@@ -90,13 +96,15 @@ _raster_band_template = """\
   </VRTRasterBand>
 """
 
-# TODO: Check assumptions on block width matching xSize in srcRect. i.e. always reading all of the input.
+# TODO: Check assumptions on block width matching xSize in srcRect.
+# i.e. always reading all of the input.
 
 _simple_source_template = """\
     <SimpleSource>
       <SourceFilename relativeToVRT="0">{url}</SourceFilename>
       <SourceBand>{band_number}</SourceBand>
-      <SourceProperties RasterXSize="{width}" RasterYSize="{height}" DataType="{data_type}" BlockXSize="{block_width}" BlockYSize="{block_height}" />
+      <SourceProperties RasterXSize="{width}" RasterYSize="{height}" \
+DataType="{data_type}" BlockXSize="{block_width}" BlockYSize="{block_height}" />
       <SrcRect xOff="0" yOff="0" xSize="{width}" ySize="{height}" />
       <DstRect xOff="{x_off}" yOff="{y_off}" xSize="{width}" ySize="{height}" />
     </SimpleSource>
@@ -115,7 +123,7 @@ def _format_vrt():
 
 
 def build_vrt(
-    stac_items: List[pystac.Item],
+    stac_items,
     *,
     crs: Optional[pyproj.crs.CRS] = None,
     res_x: Optional[float] = None,
@@ -145,7 +153,7 @@ def build_vrt(
     else:
         # TODO: validate length
         pass
-    
+
     if shapes is None:
         shapes = [stac_item["properties"]["proj:shape"] for stac_item in stac_items]
     else:
@@ -158,7 +166,6 @@ def build_vrt(
     out_width, out_height = map(int, inv_transform * (out_bbox.right, out_bbox.bottom))
 
     simple_sources = []
-    raster_bands = []
 
     # The iteration order here is annoying :/
     # We need to go over bands then items.
@@ -168,7 +175,9 @@ def build_vrt(
     assert len(stac_items) == len(bboxes) == len(shapes)
     assert len(stac_items) == len(bboxes) == len(shapes)
 
-    for i, (stac_item, bbox, (height, width)) in enumerate(zip(stac_items, bboxes, shapes)):
+    for i, (stac_item, bbox, (height, width)) in enumerate(
+        zip(stac_items, bboxes, shapes)
+    ):
         image = stac_item["assets"]["image"]
         x_off, y_off = ~out_transform * (bbox.left, bbox.top)
         for j, band in enumerate(image["eo:bands"], 1):
@@ -186,19 +195,29 @@ def build_vrt(
                     block_width=block_width,
                     block_height=block_height,
                     x_off=int(x_off),
-                    y_off=int(y_off))
+                    y_off=int(y_off),
+                )
             )
-            
-    sources = [''.join(x) for x in simple_sources]
+
+    sources = ["".join(x) for x in simple_sources]
     rendered_bands = []
     for band_number, band in enumerate(image["eo:bands"], 1):
         color_interp = "\n    <ColorInterp>{}</ColorInterp>".format(band["name"])
-        rendered_bands.append(_raster_band_template.format(
-            simple_sources=sources[band_number - 1], data_type=data_type, band_number=band_number, color_interp=color_interp
+        rendered_bands.append(
+            _raster_band_template.format(
+                simple_sources=sources[band_number - 1],
+                data_type=data_type,
+                band_number=band_number,
+                color_interp=color_interp,
             )
         )
 
     transform = ", ".join(map(str, out_transform.to_gdal()))
-    result = _vrt_template.format(width=out_width, height=out_height, srs=crs.to_wkt(pyproj.enums.WktVersion.WKT1_GDAL), transform=transform,
-                                  raster_bands="".join(rendered_bands))
+    result = _vrt_template.format(
+        width=out_width,
+        height=out_height,
+        srs=crs.to_wkt(pyproj.enums.WktVersion.WKT1_GDAL),
+        transform=transform,
+        raster_bands="".join(rendered_bands),
+    )
     return result

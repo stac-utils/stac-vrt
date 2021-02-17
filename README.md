@@ -68,7 +68,33 @@ for i, feature in enumerate(response["features"]):
     feature["properties"]["proj:epsg"] = proj_epsg
     feature["properties"]["proj:shape"] = shapes[i]
     feature["properties"]["proj:transform"] = transforms[i]
+    feature["properties"]["proj:bbox"] = bboxes[i]
 
 with open("response-fixed.json", "w") as f:
     json.dump(response, f)
+```
+
+## Initial Benchmarks
+
+On a benchmark with 425 items, with the caveat that the stac-vrt timing doesn't include any HTTP requests to the STAC endpoint.
+
+**With GDAL**
+
+```python
+%%time
+>>> blobs_2013 = ["/vsicurl/{}".format(item.assets['image']['href'])
+...               for item in search_2013.items()]
+>>> mosaic2013 = gdal.BuildVRT("test.vrt", blobs_2013)
+>>> mosaic2013.FlushCache()
+CPU times: user 29.8 s, sys: 1.86 s, total: 31.6 s
+Wall time: 1min 38s
+```
+
+**With stac-vrt**
+
+```python
+%%time
+>>> result = stac_vrt.build_vrt(response["features"], block_width=512, block_height=512, data_type="Byte")
+CPU times: user 28.4 ms, sys: 4.18 ms, total: 32.6 ms
+Wall time: 31.6 ms
 ```
