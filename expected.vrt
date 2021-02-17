@@ -1,0 +1,71 @@
+<VRTDataset rasterXSize="21370" rasterYSize="12260">
+  <SRS dataAxisToSRSAxisMapping="1,2">PROJCS["NAD83 / UTM zone 17N",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-81],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","26917"]]</SRS>
+  <GeoTransform>  5.2460400000000000e+05,  5.9999999999999998e-01,  0.0000000000000000e+00,  2.9866920000000000e+06,  0.0000000000000000e+00, -5.9999999999999998e-01</GeoTransform>
+  <VRTRasterBand dataType="Byte" band="1">
+    <ColorInterp>Red</ColorInterp>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_ne_17_060_20191215.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="11040" RasterYSize="12240" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11040" ySize="12240" />
+      <DstRect xOff="10330" yOff="0" xSize="11040" ySize="12240" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_nw_17_060_20191215.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="11030" RasterYSize="12230" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11030" ySize="12230" />
+      <DstRect xOff="0" yOff="30" xSize="11030" ySize="12230" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="2">
+    <ColorInterp>Green</ColorInterp>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_ne_17_060_20191215.tif</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="11040" RasterYSize="12240" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11040" ySize="12240" />
+      <DstRect xOff="10330" yOff="0" xSize="11040" ySize="12240" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_nw_17_060_20191215.tif</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="11030" RasterYSize="12230" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11030" ySize="12230" />
+      <DstRect xOff="0" yOff="30" xSize="11030" ySize="12230" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="3">
+    <ColorInterp>Blue</ColorInterp>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_ne_17_060_20191215.tif</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="11040" RasterYSize="12240" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11040" ySize="12240" />
+      <DstRect xOff="10330" yOff="0" xSize="11040" ySize="12240" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_nw_17_060_20191215.tif</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="11030" RasterYSize="12230" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11030" ySize="12230" />
+      <DstRect xOff="0" yOff="30" xSize="11030" ySize="12230" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="4">
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_ne_17_060_20191215.tif</SourceFilename>
+      <SourceBand>4</SourceBand>
+      <SourceProperties RasterXSize="11040" RasterYSize="12240" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11040" ySize="12240" />
+      <DstRect xOff="10330" yOff="0" xSize="11040" ySize="12240" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsicurl/https://naipeuwest.blob.core.windows.net/naip/v002/fl/2019/fl_60cm_2019/26080/m_2608003_nw_17_060_20191215.tif</SourceFilename>
+      <SourceBand>4</SourceBand>
+      <SourceProperties RasterXSize="11030" RasterYSize="12230" DataType="Byte" BlockXSize="512" BlockYSize="512" />
+      <SrcRect xOff="0" yOff="0" xSize="11030" ySize="12230" />
+      <DstRect xOff="0" yOff="30" xSize="11030" ySize="12230" />
+    </SimpleSource>
+  </VRTRasterBand>
+</VRTDataset>
