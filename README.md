@@ -33,13 +33,15 @@ We can instead rely on STAC to provide the necessary metadata. We use the STAC m
 
 ## Notes
 
-This relies on a slight adjustment to the NAIP data. In particular, the following fields
-have been modified or added:
+The example above doesn't quite work on the NAIP data hosted in Azure today.
+In particular, the following fields have been modified or added:
 
 1. Corrected `proj:epsg` to `26917`.
 2. Added `proj:shape` with the shape as reported by rasterio
 3. Added `proj:bbox` with the bounding box as reported by rasterio
 4. Added `proj:transform` with the `.transform` as reported by rasterio (this provides the resolution, assuming we can't get it from anywhere else)
+
+That's done with:
 
 ```python
 import json
