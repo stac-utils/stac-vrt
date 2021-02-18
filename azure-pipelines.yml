@@ -39,12 +39,11 @@ jobs:
 
       # Install python distributions like wheel, twine etc
       - script: |
-          pip install wheel
-          pip install twine
+          pip install wheel twine flit
 
       # Build the python distribution from source
       - script: |
-          python setup.py bdist_wheel
+          flit build
 
       - task: TwineAuthenticate@1
         displayName: 'Twine Authenticate'
