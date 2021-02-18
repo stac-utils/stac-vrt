@@ -1,6 +1,6 @@
 # stac-vrt
 
-Build a GDAL from a STAC response.
+Build a GDAL VRT from a STAC response.
 
 ## Example
 
