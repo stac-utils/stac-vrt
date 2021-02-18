@@ -14,3 +14,8 @@ requires = [
     "rasterio",
     "numpy",
 ]
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "pytest>=6",
+]

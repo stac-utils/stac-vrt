@@ -1,0 +1,59 @@
+trigger:
+  - master
+  - tags
+
+pool:
+  vmImage: "ubuntu-18.04"
+
+variables:
+  isTag: $[startsWith(variables['Build.SourceBranch'], 'refs/tags/')]
+  CI: 1
+
+jobs:
+  - job: BuildAndTest
+    steps:
+      - task: UsePythonVersion@0
+        displayName: 'Use Python 3.8'
+        inputs:
+          versionSpec: '3.8'
+          addToPath: true
+
+      - script: |
+          python -m pip install .["test"]
+        displayName: "Build"
+      - script: |
+          pytest
+        displayName: "Test"
+      - script: |
+          python -m pip install pre-commit
+          pre-commit run --all-files
+        displayName: "Lint"
+
+  - job: Publish
+    steps:
+      - task: UsePythonVersion@0
+        displayName: 'Use Python 3.8'
+        inputs:
+          versionSpec: '3.8'
+          addToPath: true
+
+      # Install python distributions like wheel, twine etc
+      - script: |
+          pip install wheel
+          pip install twine
+
+      # Build the python distribution from source
+      - script: |
+          python setup.py bdist_wheel
+
+      - task: TwineAuthenticate@1
+        displayName: 'Twine Authenticate'
+        inputs:
+          artifactFeed: Planetary Computer Components/pcpi
+
+      # Use command line script to 'twine upload', use -r to pass the repository name and --config-file to pass the environment variable set by the authenticate task.
+      - script: |
+          python -m twine upload -r pcpi --config-file $(PYPIRC_PATH) dist/*.whl
+
+    dependsOn: BuildAndTest
+    condition: eq(variables.isTag, true)

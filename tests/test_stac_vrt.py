@@ -60,6 +60,9 @@ def test_fixture(response):
 def test_integration(response):
     stac_items = response["features"]
     # TODO: remove when fixed in NAIP data
+    # Have to at least fix the CRS....
+    for item in stac_items:
+        item["properties"]["proj:epsg"] = 26917
     crs = pyproj.crs.CRS("epsg:26917")
 
     # TODO: remove when added to NAIP data
@@ -115,3 +118,42 @@ def test_integration_fixed():
 
     ds = rasterio.open(vrt)
     ds.transform
+
+
+def test_no_items():
+    with pytest.raises(ValueError, match="Must provide"):
+        stac_vrt.build_vrt([])
+
+
+def test_incorrect_bboxes():
+    with pytest.raises(ValueError, match="2 != 1"):
+        stac_vrt.build_vrt(
+            [{"test": 1}],
+            bboxes=[[1, 2, 3, 4], [5, 6, 7, 8]],
+            crs=pyproj.crs.CRS("epsg:26917"),
+            res_x=1,
+            res_y=1,
+        )
+
+
+def test_incorrect_shapes():
+    with pytest.raises(ValueError, match="2 != 1"):
+        stac_vrt.build_vrt(
+            [{"test": 1}],
+            bboxes=[[1, 2, 3, 4]],
+            shapes=[[1, 2], [3, 4]],
+            crs=pyproj.crs.CRS("epsg:26917"),
+            res_x=1,
+            res_y=1,
+        )
+
+
+def test_multiple_crs_raises():
+    with open(HERE / "tests/response-fixed.json") as f:
+        resp = json.load(f)
+    resp["features"][0]["properties"]["proj:epsg"] = 26918
+
+    with pytest.raises(ValueError, match="same CRS"):
+        stac_vrt.build_vrt(
+            resp["features"], data_type="Byte", block_width=512, block_height=512
+        )

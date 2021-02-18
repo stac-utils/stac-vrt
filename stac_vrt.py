@@ -23,19 +23,6 @@ import numpy as np
 # TODO: change to types to a Protocol
 
 
-def build_bbox(stac_items, crs=None) -> rasterio.coords.BoundingBox:
-    """
-    Get the bounding box for a list of STAC Items.
-
-    If present, this uses the `proj:bbox` field from each STAC item.
-    Otherwise, it falls back to the `bbox` field, which is then
-    reprojected with provided `proj:epsg` the `proj:epsg` field of the first item.
-    All the items should have the smae proj_epsg.
-    """
-    bboxes = _build_bboxes(stac_items, crs)
-    return _build_bbox(bboxes)
-
-
 def _build_bboxes(stac_items, crs) -> List[rasterio.coords.BoundingBox]:
     has_proj_bbox = "proj:bbox" in stac_items[0]["properties"]
     crs = pyproj.crs.CRS(crs)
@@ -111,13 +98,6 @@ DataType="{data_type}" BlockXSize="{block_width}" BlockYSize="{block_height}" />
 """
 
 
-def _build():
-    """
-    Build the structure of data, to be passed to the formatter
-    """
-    pass
-
-
 def _format_vrt():
     pass
 
@@ -135,11 +115,16 @@ def build_vrt(
     block_height=None,
     add_prefix=True,
 ):
+    """
+    Build a GDAL VRT from a STAC Metadata.
+    """
     if not stac_items:
-        raise ValueError("must provide at least one STAC item")
+        raise ValueError("Must provide at least one stac item to 'build_vrt'.")
 
     if crs is None:
         crs = pyproj.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
+
+    crs_code = crs.to_epsg()
 
     if res_x is None or res_y is None:
         # TODO: proj:transform might not exist.
@@ -150,15 +135,20 @@ def build_vrt(
 
     if bboxes is None:
         bboxes = _build_bboxes(stac_items, crs)
-    else:
-        # TODO: validate length
-        pass
+    elif len(bboxes) != len(stac_items):
+        raise ValueError(
+            "Number of user-provided 'bboxes' does not match the number of "
+            "'stac_items' ({} != {})".format(len(bboxes), len(stac_items))
+        )
 
     if shapes is None:
         shapes = [stac_item["properties"]["proj:shape"] for stac_item in stac_items]
-    else:
-        # TODO: validate length
-        pass
+
+    elif len(shapes) != len(stac_items):
+        raise ValueError(
+            "Number of user-provided 'shapes' does not match the number of "
+            "'stac_items' ({} != {})".format(len(shapes), len(stac_items))
+        )
 
     out_bbox = _build_bbox(bboxes)
     out_transform = build_transform(out_bbox, res_x, res_y)
@@ -167,8 +157,6 @@ def build_vrt(
 
     simple_sources = []
 
-    # The iteration order here is annoying :/
-    # We need to go over bands then items.
     image = stac_items[0]["assets"]["image"]
     simple_sources = [[] for _ in image["eo:bands"]]
 
@@ -178,6 +166,12 @@ def build_vrt(
     for i, (stac_item, bbox, (height, width)) in enumerate(
         zip(stac_items, bboxes, shapes)
     ):
+        image_crs = stac_item.get("properties", {}).get("proj:epsg")
+        if image_crs and image_crs != crs_code:
+            raise ValueError(
+                "STAC item {} (position {}) does not have the "
+                "same CRS. {} != {}".format(stac_item["id"], i, image_crs, crs_code)
+            )
         image = stac_item["assets"]["image"]
         x_off, y_off = ~out_transform * (bbox.left, bbox.top)
         for j, band in enumerate(image["eo:bands"], 1):
