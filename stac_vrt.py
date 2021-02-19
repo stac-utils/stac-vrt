@@ -1,14 +1,5 @@
 """
-Construct a GDAL VRT from a collection of STAC Items.
-
-Examples
---------
->>> import vrstac, rioxarray
->>> items = ...
->>> vrt = vrstac.build_vrt(items)
->>> ds = rioxarray.open_rasterio(vrt)
->>> ds
-...
+Quickly build a GDAL VRT from a STAC Item Collection.
 """
 __version__ = "1.0.1"
 
@@ -105,10 +96,10 @@ def _format_vrt():
 def build_vrt(
     stac_items,
     *,
-    crs: Optional[pyproj.crs.CRS] = None,
+    crs: Optional[pyproj.CRS] = None,
     res_x: Optional[float] = None,
     res_y: Optional[float] = None,
-    shapes: Optional[List[Tuple]] = None,
+    shapes: Optional[List[Tuple[int, int]]] = None,
     bboxes: Optional[List[rasterio.coords.BoundingBox]] = None,
     data_type=None,
     block_width=None,
@@ -116,13 +107,76 @@ def build_vrt(
     add_prefix=True,
 ):
     """
-    Build a GDAL VRT from a STAC Metadata.
+    Build a `GDAL VRT <https://gdal.org/drivers/raster/vrt.html>`_ from  STAC Metadata.
+
+    This can be used to quickly build a mosaic of COGs without needed to open each
+    source file to query its metadata.
+
+    Parameters
+    ----------
+    stac_items : dict
+        This should be a dictionary compatible with the
+        `stac-pydantic <https://github.com/arturo-ai/stac-pydantic>`_ ItemCollection
+        model. The items should have the following `proj` STAC extension items
+
+        1. `proj:epsg`
+        2. `proj:transform`
+        3. `proj:shape`
+        4. `proj:bbox`
+        5. `eo:bands`
+
+        If `proj:epsg` is present, all items must have the same epsg.
+
+    crs : pyproj.CRS, optional
+        The CRS for the output VRT. Taken from the first STAC item's `proj:epsg`
+        if not provided. This is used for the generated VRT's SRS field, after
+        being converted to GDAL's WKT format.
+
+    res_x, res_y: float, optional
+        The resolution in the x and y directions. If not specified, this will
+        be taken from the first STAC item's `proj:transform` field.
+    shapes : list of tuples, optional
+        The shape of each STAC item's asset, as ``(height, width)``. If not
+        provided then this is taken from `proj:shape`.
+    bboxes : list of tuples, optional
+        The bounding box of each STAC item in its projected space. Note this is
+        *not* the same as the STAC item's ``bbox`` field. Rather, it is the
+        ``proj:bbox`` field.
+
+        If provided, this should be a list of :class:`rasterio.coords.BoundingBox`
+        namedtuples the same length as `stac_items`. If not provided this will
+        be taken from
+
+        1. ``proj:bbox`` if present. Otherwise,
+        2. ``bbox``, reprojected to ``crs``.
+
+    data_type : str
+        The GDAL raster band data type of the data.
+        https://gdal.org/user/raster_data_model.html#raster-band
+    block_width, block_height : int
+        The internal tiling of each COG.
+    add_prefix : bool
+        Whether to add the GDAL prefix to each href's source. By default,
+        ``/vsicurl`` is prepended to http(s) prefixes.
+
+    Returns
+    -------
+    vrt : str
+        The VRT as a string. This should be a valid XML file. It can also
+        be passed directly to :meth:`rasterio.open` or
+        :meth:`rioxarray.open_rasterio`.
     """
     if not stac_items:
         raise ValueError("Must provide at least one stac item to 'build_vrt'.")
 
     if crs is None:
-        crs = pyproj.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
+        try:
+            crs = pyproj.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
+        except KeyError as e:
+            raise KeyError(
+                "If 'crs' is not provided then it should be present "
+                "in the first STAC item's 'proj:epsg' field."
+            ) from e
 
     crs_code = crs.to_epsg()
 

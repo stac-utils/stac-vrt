@@ -29,6 +29,23 @@ jobs:
           pre-commit run --all-files
         displayName: "Lint"
 
+  - job: Documentation
+    steps:
+      - task: UsePythonVersion@0
+        displayName: 'Use Python 3.8'
+        inputs:
+          versionSpec: '3.8'
+          addToPath: true
+
+      - script: |
+          python -m pip install flit
+          flit install --symlink --extras=docs
+        displayName: "Setup"
+      - script: |
+          cd docs
+          make html
+        displayName: "Build"
+
   - job: Publish
     steps:
       - task: UsePythonVersion@0

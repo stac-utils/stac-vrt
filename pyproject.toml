@@ -19,3 +19,8 @@ requires = [
 test = [
     "pytest>=6",
 ]
+docs = [
+    "myst-parser>=0.13.5",
+    "pydata-sphinx-theme",
+    "numpydoc",
+]

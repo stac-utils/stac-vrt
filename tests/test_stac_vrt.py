@@ -157,3 +157,14 @@ def test_multiple_crs_raises():
         stac_vrt.build_vrt(
             resp["features"], data_type="Byte", block_width=512, block_height=512
         )
+
+
+def test_missing_crs_raises():
+    with open(HERE / "tests/response-fixed.json") as f:
+        resp = json.load(f)
+    del resp["features"][0]["properties"]["proj:epsg"]
+
+    with pytest.raises(KeyError, match="proj:epsg"):
+        stac_vrt.build_vrt(
+            resp["features"], data_type="Byte", block_width=512, block_height=512
+        )

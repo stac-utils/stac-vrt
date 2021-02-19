@@ -8,7 +8,7 @@ Build a GDAL VRT from a STAC response.
 >>> import stac_vrt, requests, rioxarray
 >>> stac_items = requests.get(
 ...     "http://pc-mqe-staging.westeurope.cloudapp.azure.com/collections/usda-naip/items"
-... )["features"]
+... ).json()["features"]
 >>> vrt = stac_vrt.build_vrt(stac_items, data_type="Byte", block_width=512, block_height=512)
 >>> ds = rioxarray.open_rasterio(vrt, chunks=True)
 >>> ds
