@@ -1,6 +1,10 @@
 trigger:
-  - main
-  - tags
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - "*"
 
 pool:
   vmImage: "ubuntu-18.04"
