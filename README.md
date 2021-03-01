@@ -2,6 +2,8 @@
 
 Build a GDAL VRT from a STAC response.
 
+[![Documentation Status](https://readthedocs.org/projects/stac-vrt/badge/?version=latest)](https://stac-vrt.readthedocs.io/en/latest/?badge=latest)
+
 ## Example
 
 ```python
