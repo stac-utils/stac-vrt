@@ -89,10 +89,6 @@ DataType="{data_type}" BlockXSize="{block_width}" BlockYSize="{block_height}" />
 """
 
 
-def _format_vrt():
-    pass
-
-
 def build_vrt(
     stac_items,
     *,
@@ -114,8 +110,8 @@ def build_vrt(
 
     Parameters
     ----------
-    stac_items : dict
-        This should be a dictionary compatible with the
+    stac_items : list
+        This should be a list of dicts, compatible with the
         `stac-pydantic <https://github.com/arturo-ai/stac-pydantic>`_ ItemCollection
         model. The items should have the following `proj` STAC extension items
 
