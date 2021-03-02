@@ -22,7 +22,7 @@ or from PyPI
 >>> import stac_vrt
 >>> import requests
 >>> stac_items = requests.get(
-...     "http://pc-mqe-staging.westeurope.cloudapp.azure.com/collections/usda-naip/items"
+...     "http://pct-mqe-staging.westeurope.cloudapp.azure.com/collections/usda-naip/items"
 ... ).json()["features"]
 ```
 
@@ -33,7 +33,7 @@ These STAC items contain essentially all of the information needed to build a VR
 ```
 
 The `vrt` variable is just a Python string that's a valid VRT (an XML document). It can
-be written to disk, or passed directly to [rasterio](https://rasterio.readthedocs.io/en/latest/) or [rioxarray](https://corteva.github.io/rioxarray/stable/).
+be written to disk, or passed directly to [rasterio](https://rasterio.readthedocs.io/en/latest/) or [rioxarray](https://corteva.github.io/rioxarray/stable/) (this example uses `rioxarray` and also requires [Dask](https://dask.org/) to read the chunks in parallel).
 
 ```python
 >>> import rioxarray
