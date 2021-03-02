@@ -33,6 +33,7 @@ release = "1.0.1"
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "numpydoc",
 ]
 
@@ -43,7 +44,6 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -56,3 +56,9 @@ html_theme = "pydata_sphinx_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
+
+
+intersphinx_mapping = {
+    "rasterio": ("https://rasterio.readthedocs.io/en/latest/", None),
+    "rioxarray": ("https://corteva.github.io/rioxarray/stable/", None),
+}
