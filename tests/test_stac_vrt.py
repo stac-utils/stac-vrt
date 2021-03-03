@@ -3,7 +3,6 @@ import io
 from pathlib import Path
 import xml.etree
 
-import pyproj
 import pytest
 import rasterio.coords
 
@@ -63,7 +62,7 @@ def test_integration(response):
     # Have to at least fix the CRS....
     for item in stac_items:
         item["properties"]["proj:epsg"] = 26917
-    crs = pyproj.crs.CRS("epsg:26917")
+    crs = rasterio.crs.CRS.from_string("epsg:26917")
 
     # TODO: remove when added to NAIP data
     res_x = res_y = 0.6
@@ -130,7 +129,7 @@ def test_incorrect_bboxes():
         stac_vrt.build_vrt(
             [{"test": 1}],
             bboxes=[[1, 2, 3, 4], [5, 6, 7, 8]],
-            crs=pyproj.crs.CRS("epsg:26917"),
+            crs=rasterio.crs.CRS.from_string("epsg:26917"),
             res_x=1,
             res_y=1,
         )
@@ -142,7 +141,7 @@ def test_incorrect_shapes():
             [{"test": 1}],
             bboxes=[[1, 2, 3, 4]],
             shapes=[[1, 2], [3, 4]],
-            crs=pyproj.crs.CRS("epsg:26917"),
+            crs=rasterio.crs.CRS.from_string("epsg:26917"),
             res_x=1,
             res_y=1,
         )

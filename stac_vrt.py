@@ -6,7 +6,6 @@ __version__ = "1.0.3"
 from typing import List, Optional, Tuple
 
 import affine
-import pyproj
 import rasterio
 import rasterio.warp
 import numpy as np
@@ -14,9 +13,10 @@ import numpy as np
 # TODO: change to types to a Protocol
 
 
-def _build_bboxes(stac_items, crs) -> List[rasterio.coords.BoundingBox]:
+def _build_bboxes(
+    stac_items, crs: rasterio.crs.CRS
+) -> List[rasterio.coords.BoundingBox]:
     has_proj_bbox = "proj:bbox" in stac_items[0]["properties"]
-    crs = pyproj.crs.CRS(crs)
     if has_proj_bbox:
         bboxes = [
             rasterio.coords.BoundingBox(*item["properties"]["proj:bbox"])
@@ -92,7 +92,7 @@ DataType="{data_type}" BlockXSize="{block_width}" BlockYSize="{block_height}" />
 def build_vrt(
     stac_items,
     *,
-    crs: Optional[pyproj.CRS] = None,
+    crs: Optional[rasterio.crs.CRS] = None,
     res_x: Optional[float] = None,
     res_y: Optional[float] = None,
     shapes: Optional[List[Tuple[int, int]]] = None,
@@ -123,7 +123,7 @@ def build_vrt(
 
         If `proj:epsg` is present, all items must have the same epsg.
 
-    crs : pyproj.CRS, optional
+    crs : rasterio.crs.CRS, optional
         The CRS for the output VRT. Taken from the first STAC item's `proj:epsg`
         if not provided. This is used for the generated VRT's SRS field, after
         being converted to GDAL's WKT format.
@@ -167,7 +167,7 @@ def build_vrt(
 
     if crs is None:
         try:
-            crs = pyproj.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
+            crs = rasterio.crs.CRS.from_epsg(stac_items[0]["properties"]["proj:epsg"])
         except KeyError as e:
             raise KeyError(
                 "If 'crs' is not provided then it should be present "
@@ -260,7 +260,7 @@ def build_vrt(
     result = _vrt_template.format(
         width=out_width,
         height=out_height,
-        srs=crs.to_wkt(pyproj.enums.WktVersion.WKT1_GDAL),
+        srs=crs.to_wkt(rasterio.crs.enums.WktVersion.WKT1_GDAL),
         transform=transform,
         raster_bands="".join(rendered_bands),
     )
