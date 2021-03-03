@@ -260,7 +260,7 @@ def build_vrt(
     result = _vrt_template.format(
         width=out_width,
         height=out_height,
-        srs=crs.to_wkt(rasterio.crs.enums.WktVersion.WKT1_GDAL),
+        srs=crs.to_wkt(),
         transform=transform,
         raster_bands="".join(rendered_bands),
     )
