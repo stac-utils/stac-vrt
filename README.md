@@ -8,7 +8,7 @@ Build a GDAL VRT from a STAC response.
 
 stac-vrt is lightly maintained these days, and its use case is now better filled by other libraries:
 
-1. GDAL now natively supports STAC items: See <https://gdal.org/drivers/raster/stacta.html>
+1. GDAL now natively supports STAC items: See <https://gdal.org/drivers/raster/stacit.html>
 2. [stackstac](https://stackstac.readthedocs.io/en/latest/) provides a nicer way to stack STAC items into a DataArray
  
 
