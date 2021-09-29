@@ -4,6 +4,14 @@ Build a GDAL VRT from a STAC response.
 
 [![Documentation Status](https://readthedocs.org/projects/stac-vrt/badge/?version=latest)](https://stac-vrt.readthedocs.io/en/latest/?badge=latest)
 
+## Other Libraries
+
+stac-vrt is lightly maintained these days, and its use case is now better filled by other libraries:
+
+1. GDAL now natively supports STAC items: See <https://gdal.org/drivers/raster/stacta.html>
+2. [stackstac](https://stackstac.readthedocs.io/en/latest/) provides a nicer way to stack STAC items into a DataArray
+ 
+
 ## Example
 
 ```python
