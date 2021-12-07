@@ -66,7 +66,7 @@ VRTs are a pretty cool concept in GDAL. The basic idea is to make document that'
 
 VRTs pair extremely nicely with Dask-backed xarray DataArrays: you build up a mosaic of a whole bunch of images that just involves reading some metadata and doing some geospatial reprojections. No actual data is read. Then you can (lazily) read the actual data into an xarray DataArray for your analysis, and the separate original images can be read into separate chunks.
 
-One downside to (large) VRTs is that they can be time-consuming to build. You'd need to make at least one HTTP requests for each file going into the VRT to read the metadata (things like the CRS, shape, and transformation).
+One downside to (large) VRTs is that they can be time-consuming to build. You'd need to make at least one HTTP request for each file going into the VRT to read the metadata (things like the CRS, shape, and transformation).
 
 When you're using STAC to discover your assets, you *already* have all of that information avaiable. And so `stac-vrt` is able to build the VRT without any additional network requests. An informal benchmark on a set of 500 images stored in Azure Blob Storage showed that `gdal.BuildVRT` took about 90 seconds, while `stac-vrt.build_vrt` took a handful of milliseconds.
 
